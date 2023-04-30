@@ -1,6 +1,4 @@
-import engKeys from './keys-list.js';
-
-const keys = engKeys;
+import { engKeys, rusKeys } from './keys-list.js';
 
 const Keyboard = {
 
@@ -21,21 +19,22 @@ const Keyboard = {
     this.centralizer.appendChild(this.description);
     this.description.innerHTML = 'Клавиатура создана в операционной системе Windows<br>Для переключения языка комбинация: левыe alt + shift';
 
-    let keyCodes = Object.keys(keys);
-    this.keyboard.appendChild(this.createRowKeys(keyCodes.slice(0, 14)));
-    this.keyboard.appendChild(this.createRowKeys(keyCodes.slice(14, 29)));
-    this.keyboard.appendChild(this.createRowKeys(keyCodes.slice(29, 42)));
-    this.keyboard.appendChild(this.createRowKeys(keyCodes.slice(42, 55)));
-    this.keyboard.appendChild(this.createRowKeys(keyCodes.slice(55, keyCodes.length)));
+    let engKeyCodes = Object.keys(engKeys);
+    let rusKeyCodes = Object.keys(rusKeys);
+    this.keyboard.appendChild(this.createRowKeys(engKeyCodes.slice(0, 14), rusKeyCodes.slice(0, 14)));
+    this.keyboard.appendChild(this.createRowKeys(engKeyCodes.slice(14, 29), rusKeyCodes.slice(14, 29)));
+    this.keyboard.appendChild(this.createRowKeys(engKeyCodes.slice(29, 42), rusKeyCodes.slice(29, 42)));
+    this.keyboard.appendChild(this.createRowKeys(engKeyCodes.slice(42, 55), rusKeyCodes.slice(42, 55)));
+    this.keyboard.appendChild(this.createRowKeys(engKeyCodes.slice(55, engKeyCodes.length), rusKeyCodes.slice(55, rusKeyCodes.length)));
 
     document.body.appendChild(this.centralizer);
   },
 
-  createRowKeys(arr) {
+  createRowKeys(engArr, rusArr) {
     let rowKeys = document.createElement('div');
     rowKeys.classList.add('kb-row');
 
-    arr.forEach((name) => {
+    engArr.forEach((name) => {
       let button = document.createElement('div');
       button.classList.add('kb-key');
       button.classList.add(`${name}`);
@@ -91,31 +90,38 @@ const Keyboard = {
       rusShiftCaps.classList.add('hidden');
       rus.appendChild(rusShiftCaps);
 
-      if (keys[name].length <= 2) {
-        engCaseDown.textContent = keys[name][0];
-        engCaseUp.textContent = keys[name][1];
-        rusCaseDown.textContent = keys[name][0];
-        rusCaseUp.textContent = keys[name][1];
-        if (keys[name][0].match(/[a-zа-яё]/)) {
-          engCaps.textContent = keys[name][1];
-          engShiftCaps.textContent = keys[name][0];
-          rusCaps.textContent = keys[name][1];
-          rusShiftCaps.textContent = keys[name][0];
+      if (Array.isArray(engKeys[name])) {
+        engCaseDown.textContent = engKeys[name][0];
+        engCaseUp.textContent = engKeys[name][1];
+        if (engKeys[name][0].match(/[a-z]/)) {
+          engCaps.textContent = engKeys[name][1];
+          engShiftCaps.textContent = engKeys[name][0];
         } else {
-          engCaps.textContent = keys[name][0];
-          engShiftCaps.textContent = keys[name][1];
-          rusCaps.textContent = keys[name][0];
-          rusShiftCaps.textContent = keys[name][1];
+          engCaps.textContent = engKeys[name][0];
+          engShiftCaps.textContent = engKeys[name][1];
         }
       } else {
-        engCaseDown.textContent = keys[name];
-        engCaseUp.textContent = keys[name];
-        engCaps.textContent = keys[name];
-        engShiftCaps.textContent = keys[name];
-        rusCaseDown.textContent = keys[name];
-        rusCaseUp.textContent = keys[name];
-        rusCaps.textContent = keys[name];
-        rusShiftCaps.textContent = keys[name];
+        engCaseDown.textContent = engKeys[name];
+        engCaseUp.textContent = engKeys[name];
+        engCaps.textContent = engKeys[name];
+        engShiftCaps.textContent = engKeys[name];
+      }
+
+      if (Array.isArray(rusKeys[name])) {
+        rusCaseDown.textContent = rusKeys[name][0];
+        rusCaseUp.textContent = rusKeys[name][1];
+        if (rusKeys[name][0].match(/[а-яё]/)) {
+          rusCaps.textContent = rusKeys[name][1];
+          rusShiftCaps.textContent = rusKeys[name][0];
+        } else {
+          rusCaps.textContent = rusKeys[name][0];
+          rusShiftCaps.textContent = rusKeys[name][1];
+        }
+      } else {
+        rusCaseDown.textContent = rusKeys[name];
+        rusCaseUp.textContent = rusKeys[name];
+        rusCaps.textContent = rusKeys[name];
+        rusShiftCaps.textContent = rusKeys[name];
       }
     });
 
