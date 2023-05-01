@@ -3,6 +3,12 @@ import { engKeys, rusKeys } from './keys-list.js';
 const Keyboard = {
 
   init() {
+    this.caseUp = false;
+    this.caps = false;
+    this.shift = false;
+    this.language = 'eng';
+    this.keys = this.language === "eng" ? engKeys : rusKeys;
+
     this.centralizer = document.createElement('div');
     this.centralizer.classList.add('centralizer');
 
@@ -30,7 +36,7 @@ const Keyboard = {
     document.body.appendChild(this.centralizer);
   },
 
-  createRowKeys(engArr, rusArr) {
+  createRowKeys(engArr) {
     let rowKeys = document.createElement('div');
     rowKeys.classList.add('kb-row');
 
@@ -128,8 +134,263 @@ const Keyboard = {
     return rowKeys;
   },
 
+  switchLanguage() {
+    this.language = this.language === 'eng' ? 'rus' : 'eng';
+    this.keys = this.language === "eng" ? engKeys : rusKeys;
+    if (this.language === 'rus') {
+      document.querySelectorAll('.rus').forEach((elem) => {
+        elem.classList.remove('hidden');
+      });
+      document.querySelectorAll('.rus span').forEach((n) => {
+        n.classList.add('hidden');
+      });
+      document.querySelectorAll('.rus .caseDown').forEach((n) => {
+        n.classList.remove('hidden');
+      });
+
+      document.querySelectorAll('.eng').forEach((elem) => {
+        elem.classList.add('hidden');
+      });
+      document.querySelectorAll('.eng span').forEach((n) => {
+        n.classList.add('hidden');
+      });
+    } else if (this.language === 'eng') {
+      document.querySelectorAll('.eng').forEach((elem) => {
+        elem.classList.remove('hidden');
+      });
+      document.querySelectorAll('.eng span').forEach((n) => {
+        n.classList.add('hidden');
+      });
+      document.querySelectorAll('.eng .caseDown').forEach((n) => {
+        n.classList.remove('hidden');
+      });
+
+      document.querySelectorAll('.rus').forEach((elem) => {
+        elem.classList.add('hidden');
+      });
+      document.querySelectorAll('.rus span').forEach((n) => {
+        n.classList.add('hidden');
+      });
+    }
+  },
+
+  switchCaps() {
+    if (this.caps) {
+      document.querySelector('.CapsLock').classList.add('active');
+      Object.keys(this.keys).forEach((code) => {
+        if (Array.isArray(this.keys[code])) {
+          if (this.keys[code][0].match(/[a-zа-яё]/)) {
+            document.querySelectorAll(`.${this.language} span`).forEach((n) => {
+              n.classList.add('hidden');
+            });
+            document.querySelectorAll(`.${this.language} .caps`).forEach((n) => {
+              n.classList.remove('hidden');
+            });
+          }
+        }
+      });
+    } else {
+      document.querySelector('.CapsLock').classList.remove('active');
+      Object.keys(this.keys).forEach((code) => {
+        if (Array.isArray(this.keys[code])) {
+          if (this.keys[code][0].match(/[a-zа-яё]/)) {
+            document.querySelectorAll(`.${this.language} span`).forEach((n) => {
+              n.classList.add('hidden');
+            });
+            document.querySelectorAll(`.${this.language} .caseDown`).forEach((n) => {
+              n.classList.remove('hidden');
+            });
+          }
+        }
+      });
+    }
+  },
+
+  switchShift() {
+    if (this.shift) {
+      document.querySelector('.ShiftLeft').classList.add('active');
+      document.querySelector('.ShiftRight').classList.add('active');
+      Object.keys(this.keys).forEach((code) => {
+        if (Array.isArray(this.keys[code])) {
+          document.querySelectorAll(`.${this.language} span`).forEach((n) => {
+            n.classList.add('hidden');
+          });
+          document.querySelectorAll(`.${this.language} .caseUp`).forEach((n) => {
+            n.classList.remove('hidden');
+          });
+        }
+      });
+    } else {
+      document.querySelector('.ShiftLeft').classList.remove('active');
+      document.querySelector('.ShiftRight').classList.remove('active');
+      Object.keys(this.keys).forEach((code) => {
+        if (Array.isArray(this.keys[code])) {
+          document.querySelectorAll(`.${this.language} span`).forEach((n) => {
+            n.classList.add('hidden');
+          });
+          document.querySelectorAll(`.${this.language} .caseDown`).forEach((n) => {
+            n.classList.remove('hidden');
+          });
+        }
+      });
+    }
+    if (this.caps) this.switchCaps();
+  },
+
+  clickKey(e) {
+    e.stopPropagation();
+    let elem = e.target.closest('.kb-key');
+    let code = elem.className.split(' ')[1];
+    console.log(code);
+    switch (code) {
+      case 'CapsLock':
+        this.caps = !this.caps;
+        this.switchCaps();
+        break;
+      case 'ShiftLeft':
+        this.shift = !this.shift;
+        this.switchShift();
+        break;
+      case 'ShiftRight':
+        this.shift = !this.shift;
+        this.switchShift();
+        break;
+      default:
+        this.outputSymbol(code);
+        break;
+    }
+  },
+
+  outputSymbol(code) {
+    let symbol = '';
+
+    if (Array.isArray(this.keys[code])) {
+      if (this.caps) {
+        if (this.keys[code][0].match(/[a-zа-яё]/)) {
+          symbol = this.keys[code][1];
+        } else {
+          symbol = this.keys[code][0];
+        }
+      } else if (this.shift) {
+        symbol = this.keys[code][1];
+      } else {
+        symbol = this.keys[code][0];
+      }
+    };
+
+    this.textarea.focus();
+
+    let selStart = this.textarea.selectionStart;
+    let selEnd = this.textarea.selectionEnd;
+
+    const left = this.textarea.value.slice(0, selStart);
+    const right = this.textarea.value.slice(selEnd);
+
+    switch (code) {
+      case 'Backspace':
+        if (selStart !== selEnd) {
+          this.textarea.value = `${left}${right}`;
+          selEnd = selStart;
+        } else {
+          this.textarea.value = `${left.slice(0, -1)}${right}`;
+          selStart -= 1;
+          selEnd = selStart;
+        }
+        break;
+      case 'Tab':
+        this.textarea.value = `${left}\t${right}`;
+        selStart += 1;
+        selEnd = selStart;
+        break;
+      case 'Delete':
+        if (selStart !== selEnd) {
+          this.textarea.value = `${left}${right}`;
+          selEnd = selStart;
+        } else {
+          this.textarea.value = `${left}${right.slice(1)}`;
+          selEnd -= 1;
+          selEnd = selStart;
+        }
+        break;
+      case 'Enter':
+        this.textarea.value = `${left}\n${right}`;
+        selStart += 1;
+        selEnd = selStart;
+        break;
+      case 'Space':
+        this.textarea.value = `${left} ${right}`;
+        selStart += 1;
+        selEnd = selStart;
+        break;
+      default:
+        selEnd = ++selStart;
+        this.textarea.value = `${left}${symbol || ''}${right}`;
+        break;
+    }
+
+    this.textarea.setSelectionRange(selStart, selEnd);
+  },
+
 };
+
+function checkActivityClass(event) {
+  document.querySelector(`.${event.code}`).classList.add('active');
+}
+
+function uncheckActivityClass(event) {
+  document.querySelector(`.${event.code}`).classList.remove('active');
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   Keyboard.init();
+});
+
+window.addEventListener('keydown', (event) => {
+  event.preventDefault();
+  if (Object.keys(engKeys).includes(event.code)) {
+    if (event.code === 'CapsLock') {
+      Keyboard.caps = !Keyboard.caps;
+      Keyboard.switchCaps();
+      return;
+    }
+    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+      if (Keyboard.shift) return;
+      Keyboard.shift = true;
+      Keyboard.switchShift();
+    }
+
+    checkActivityClass(event);
+    Keyboard.outputSymbol(event.code);
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (Object.keys(engKeys).includes(event.code)) {
+    event.preventDefault();
+    if (event.code === 'CapsLock') {
+      return;
+    }
+
+    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+      Keyboard.shift = false;
+      Keyboard.switchShift();
+      if (event.altKey) {
+        Keyboard.switchLanguage();
+        return;
+      }
+    }
+
+    if (event.code === 'AltLeft' || event.code === 'AltRight') {
+      if (event.shiftKey) {
+        Keyboard.switchLanguage();
+        return;
+      }
+    }
+
+    uncheckActivityClass(event);
+  }
+});
+
+window.addEventListener('click', (event) => {
+  Keyboard.clickKey(event);
 });
