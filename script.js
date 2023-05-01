@@ -7,7 +7,7 @@ const Keyboard = {
     this.caps = false;
     this.shift = false;
     this.language = 'eng';
-    this.keys = this.language === "eng" ? engKeys : rusKeys;
+    this.keys = this.language === 'eng' ? engKeys : rusKeys;
 
     this.centralizer = document.createElement('div');
     this.centralizer.classList.add('centralizer');
@@ -23,7 +23,7 @@ const Keyboard = {
     this.description = document.createElement('p');
     this.description.classList.add('description');
     this.centralizer.appendChild(this.description);
-    this.description.innerHTML = 'Клавиатура создана в операционной системе Windows<br>Для переключения языка комбинация: левыe alt + shift';
+    this.description.innerHTML = 'Клавиатура создана в операционной системе Windows<br>Для переключения языка используйте комбинацию: alt + shift';
 
     let engKeyCodes = Object.keys(engKeys);
     let rusKeyCodes = Object.keys(rusKeys);

@@ -56,12 +56,12 @@
   transition: border-radius 0.3s, background-color 0.3s
 }
 
-.kb-key:hover {
-  background: #79aa89
+.keyboard .kb-key:hover {
+  background: #79a0aa
 }
 
-.kb-key.active {
-  background-color: #2cfd72;
+.keyboard .kb-key.active {
+  background-color: #2cccfd;
   border-radius: 50px
 }
 
